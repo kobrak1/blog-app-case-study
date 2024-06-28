@@ -1,8 +1,10 @@
 const blogsRouter = require('express').Router()
 const Blog = require('../models/blog')
-const { error } = require('../utils/logger')
-const { userExtractor, blogExtractor } = require('../utils/middleware')
+const User = require('../models/user')
+const logger = require('../utils/logger')
+const { userExtractor, blogExtractor, blogLimit } = require('../utils/middleware')
 const slugify = require('slugify')
+
 
 // get all blogs
 blogsRouter.get('/', async (req, res, next) => {
@@ -21,7 +23,7 @@ blogsRouter.get('/', async (req, res, next) => {
 blogsRouter.get('/:id', async (req, res, next) => {
     try {
         const id = req.params.id
-        const blog = Blog.findById(id)
+        const blog = await Blog.findById(id).populate('user_id', { name: 1, email: 1 })
         if(blog === null) {
             return res.status(404).json({error: 'There is not a blof with the specified id'})
         }
@@ -36,7 +38,7 @@ blogsRouter.get('/:id', async (req, res, next) => {
 })
 
 // post a new blog
-blogsRouter.post('/', userExtractor, async (req, res, next) => {
+blogsRouter.post('/', userExtractor, blogLimit, async (req, res, next) => {
     const body = req.body
     const user = req.user // variable from userExtractor
 
@@ -59,12 +61,14 @@ blogsRouter.post('/', userExtractor, async (req, res, next) => {
         })
 
         const savedBlog = await blog.save()
+
+        user.blogsCreatedToday += 1
         user.blogs = user.blogs.concat(savedBlog._id)
         await user.save()
 
         res.status(201).json(savedBlog)
-    } catch (exception) {
-        next(exception)
+    } catch (error) {
+        next(error)
     }
 })
 
@@ -73,11 +77,11 @@ blogsRouter.delete('/', async (req, res, next) => {
     await Blog.deleteMany({})
     res.status(204).send('All blogs has been removed')
 
-    next(error)
+    next()
 })
 
 // delete a specific blog
-blogsRouter('/:id', blogExtractor, async (req, res, next) => {
+blogsRouter.delete('/:id', blogExtractor, async (req, res, next) => {
     try {        
         const authorId = req.blog.user_id.toString()
         const userId = req.token.id  // tokenExtractor function has already been imported to app.js
@@ -87,7 +91,7 @@ blogsRouter('/:id', blogExtractor, async (req, res, next) => {
             return res.status(204).end()
         }
         
-        res.status(204).send({ error: "You are not allowed to delete someone else's blog" })
+        res.status(403).send({ error: "You are not allowed to delete someone else's blog" })
     } catch (error) {
         next(error)
     }

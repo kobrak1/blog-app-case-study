@@ -1,11 +1,12 @@
 const usersRouter = require('express').Router()
 const User = require('../models/user')
 const bcrypt = require('bcrypt')
+const logger = require('../utils/logger')
 
 // get all users
 usersRouter.get('/', async (req, res) => {
     try {
-        const users = await User.find({}).populate('blogs', { content: 1 })
+        const users = await User.find({}).populate('blogs', { content: 1, created_at: 1 })
         res.status(200).json(users)
     } catch (error) {
         console.error('Error caught while getting users')
@@ -17,14 +18,15 @@ usersRouter.get('/', async (req, res) => {
 usersRouter.get('/:id', async (req, res) => {
     try {
         const id = req.params.id
-        const user = await User.findById(id)
+        const user = await User.findById(id).populate('blogs', { content: 1, created_at: 1 })
         if(user === null) {
             return res.status(404).json({error: 'There is not a user with specified id'})
         }
+        logger.info('BLOGS:', user.blogs)
     
         res.status(200).json(user)
     } catch (error) {
-        console.error('Error caught while getting user info')
+        console.error('Error caught while getting user info:', error)
         res.status(500).json({error: 'Error wjile getting user info'})
     }
 })

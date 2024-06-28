@@ -5,6 +5,7 @@ const express = require('express')
 const app = express()
 const cors = require('cors')
 const mongoose = require('mongoose')
+const cron = require('node-cron')
 
 const usersRouter = require('./controllers/users')
 const blogsRouter = require('./controllers/blogs')
@@ -25,6 +26,16 @@ app.use(cors())
 app.use(express.json())
 app.use(middleware.reqLogger)
 app.use(middleware.tokenExtractor)
+
+// Schedule the task to reset blogsCreatedToday at midnight every day
+cron.schedule('0 0 * * *', async () => {
+    try {
+      const result = await User.updateMany({}, { $set: { blogsCreatedToday: 0 } })
+      logger.info(`Reset blogsCreatedToday for ${result.modifiedCount} users.`)
+    } catch (error) {
+      logger.error('Error resetting blogsCreatedToday:', error.message)
+    }
+  })
 
 // routers
 app.use('/api/users', usersRouter)

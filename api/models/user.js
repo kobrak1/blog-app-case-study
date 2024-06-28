@@ -6,17 +6,17 @@ const userSchema = new mongoose.Schema({
     passwordHash: { type: String, required: true },
     created_at: { type: Date, default: Date.now },
     updated_at: { type: Date, default: Date.now },
-    blogs: [{type: mongoose.Schema.Types.ObjectId, ref: 'Blog'}]
-        
+    blogs: [{type: mongoose.Schema.Types.ObjectId, ref: 'Blog'}],
+    blogsCreatedToday: { type: Number, default: 0 }
 });
 
 userSchema.set('toJSON', {
     transform: (doc, ret) => {
-        ret.id = ret._id.toString();
-        delete ret._id;
-        delete ret.__v;
-        delete ret.passwordHash;
+        ret.id = ret._id.toString()
+        delete ret._id
+        delete ret.__v
+        delete ret.passwordHash
     }
 });
 
-module.exports = mongoose.model('User', userSchema);
+module.exports = mongoose.model('User', userSchema)

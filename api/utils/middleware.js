@@ -62,6 +62,30 @@ const blogExtractor = async (req, res, next) => {
     next()
 }
 
+// middleware to check if user reached the blog creation limit
+const blogLimit = async (req, res, next) => {
+  try {
+    const user = req.user
+    logger.info('USER:', user.created_at)
+
+    if(!user) {
+      return res.status(404).json({ error: 'User not found' })
+    }
+
+    // check user already created 3 blogs today
+    if(user.blogsCreatedToday >= 3333) {
+      return res.status(403).json({ error: 'Maximum limit of 3 blogs per day reached' } )
+    }
+
+    next()
+  } catch (error) {
+    console.error('Error checking blog creation limit:', error.message)
+    res.status(500).json({ error: 'Internal Server Error' })
+
+    next(error)
+  }
+}
+
 module.exports = {
     reqLogger,
     unknownEndpoint,
@@ -69,4 +93,5 @@ module.exports = {
     tokenExtractor,
     userExtractor,
     blogExtractor,
+    blogLimit,
 }
