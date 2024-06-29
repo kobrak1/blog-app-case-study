@@ -73,7 +73,7 @@ const blogLimit = async (req, res, next) => {
     }
 
     // check user already created 3 blogs today
-    if(user.blogsCreatedToday >= 3333) {
+    if(user.blogsCreatedToday >= 3) {
       return res.status(403).json({ error: 'Maximum limit of 3 blogs per day reached' } )
     }
 
