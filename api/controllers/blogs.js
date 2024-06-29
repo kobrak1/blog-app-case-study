@@ -2,7 +2,7 @@ const blogsRouter = require('express').Router()
 const Blog = require('../models/blog')
 const User = require('../models/user')
 const logger = require('../utils/logger')
-const { userExtractor, blogExtractor, blogLimit } = require('../utils/middleware')
+const { userExtractor, blogExtractor, blogLimit, isUniqueSlug } = require('../utils/middleware')
 const slugify = require('slugify')
 
 
@@ -20,12 +20,12 @@ blogsRouter.get('/', async (req, res, next) => {
 })
 
 // get a blog with specified id
-blogsRouter.get('/:id', async (req, res, next) => {
+blogsRouter.get('/:slug', async (req, res, next) => {
     try {
-        const id = req.params.id
-        const blog = await Blog.findById(id).populate('user_id', { name: 1, email: 1 })
+        const slug = req.params.slug
+        const blog = await Blog.findOne({ slug }).populate('user_id', { name: 1, email: 1 })
         if(blog === null) {
-            return res.status(404).json({error: 'There is not a blof with the specified id'})
+            return res.status(404).json({error: 'There is not a blog with the specified id'})
         }
 
         res.status(200).json(blog)
@@ -38,18 +38,16 @@ blogsRouter.get('/:id', async (req, res, next) => {
 })
 
 // post a new blog
-blogsRouter.post('/', userExtractor, blogLimit, async (req, res, next) => {
+blogsRouter.post('/', userExtractor, blogLimit, isUniqueSlug, async (req, res, next) => {
     const body = req.body
     const user = req.user // variable from userExtractor
+    const slug = req.slug // variable from isUniqueSlug
 
     try {
         // check if content missing
         if(!body.content) {
             return res.status(400).json({error: 'content missing'})
         }
-        
-        // generate a slug from the title
-        const slug = slugify(body.title, { lower: false })
     
         const blog = new Blog({
             user_id: user._id,

@@ -1,5 +1,6 @@
 const logger = require('./logger')
 const jwt = require('jsonwebtoken')
+const slugify = require('slugify')
 const Blog = require('../models/blog')
 const User = require('../models/user')
 
@@ -86,6 +87,30 @@ const blogLimit = async (req, res, next) => {
   }
 }
 
+// middleware to check if slug unique
+const isUniqueSlug = async (req, res, next) => {
+  try {
+    const slugOptions = {
+      lower: true,
+      remove: /[*+~.()'"!:@]/g
+    }
+    const slug = slugify(req.body.title, slugOptions)  // generate a slug from the title
+
+    // check if slug is unique
+    const existingBlog = await Blog.findOne({ slug })
+    if(existingBlog) {
+      return res.status(400).json({ error: 'Title generates a non-unique slug' })
+    }
+
+    // if unique attach the slug to the req object
+    req.slug = slug
+
+    next()
+  } catch (error) {
+    next(error)  // pass error to the error handling middleware
+  }
+}
+
 module.exports = {
     reqLogger,
     unknownEndpoint,
@@ -94,4 +119,5 @@ module.exports = {
     userExtractor,
     blogExtractor,
     blogLimit,
+    isUniqueSlug,
 }
