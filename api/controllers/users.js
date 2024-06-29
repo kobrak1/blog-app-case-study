@@ -1,7 +1,6 @@
 const usersRouter = require('express').Router()
 const User = require('../models/user')
 const bcrypt = require('bcrypt')
-const logger = require('../utils/logger')
 
 // get all users
 usersRouter.get('/', async (req, res) => {
@@ -22,7 +21,6 @@ usersRouter.get('/:id', async (req, res) => {
         if(user === null) {
             return res.status(404).json({error: 'There is not a user with specified id'})
         }
-        logger.info('BLOGS:', user.blogs)
     
         res.status(200).json(user)
     } catch (error) {
