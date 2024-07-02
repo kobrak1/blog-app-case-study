@@ -1,7 +1,10 @@
+import Blogs from "../components/Blogs/Blogs"
+
 const HomePage = () => {
+    
     return (
         <div>
-            This is the HomePage!!
+            <Blogs />
         </div>
     )
 }
