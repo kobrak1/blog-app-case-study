@@ -12,8 +12,6 @@ const Header = () => {
           <a href="/" className="text-gray-500 hover:text-gray-300">Home</a>
           <a href="/blogs" className="text-gray-500 hover:text-gray-300">Blogs</a>
           <a href="/about" className="text-gray-500 text-lg hover:text-gray-300">Post</a>
-          <a href="/about" className="text-gray-500 hover:text-gray-300">About</a>
-          <a href="/contact" className="text-gray-500 hover:text-gray-300">Contact</a>
         </nav>
 
         {/* Search bar and dark mode button */}
