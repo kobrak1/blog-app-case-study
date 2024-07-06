@@ -11,7 +11,7 @@ const Header = () => {
         <nav className="space-x-4">
           <a href="/" className="text-gray-500 hover:text-gray-300">Home</a>
           <a href="/blogs" className="text-gray-500 hover:text-gray-300">Blogs</a>
-          <a href="/about" className="text-gray-500 text-lg hover:text-gray-300">Post</a>
+          <a href="/post" className="text-gray-500 hover:text-gray-300">Post</a>
         </nav>
 
         {/* Search bar and dark mode button */}
@@ -27,7 +27,6 @@ const Header = () => {
             </div>
           </div>
         </div>
-
       </div>
     </header>
   )
