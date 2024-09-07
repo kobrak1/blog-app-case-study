@@ -3,7 +3,7 @@ import HomePage from "./pages/Homepage"
 import Header from "./components/Header/Header"
 
 const App = () => {
-  
+  console.log('App.jsx has been rendered')
   return (
     <div>
       <Header />
